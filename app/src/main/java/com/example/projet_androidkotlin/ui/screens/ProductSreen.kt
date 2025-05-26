@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -92,7 +94,7 @@ fun ProductScreen(
 
 
 @Composable
-fun ProductItem(product: Product, onClick: () -> Unit) {
+fun ProductItem(product: Product, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -111,26 +113,43 @@ fun ProductItem(product: Product, onClick: () -> Unit) {
         }
     }
 }
-@Composable
-fun ProductDetailScreen(productId: String?, viewModel: ProductViewModel = viewModel()) {
-    val products by viewModel.products.collectAsState(initial = emptyList())
-    val product = products.find { it.id.toString() == productId }
 
-    if (product != null) {
-        Column(modifier = Modifier.padding(16.dp)) {
+@Composable
+fun ProductDetailScreen(
+    productId: String?,
+    viewModel: ProductViewModel = viewModel(),
+    navController: NavController
+) {
+    val product by viewModel.product.collectAsState()
+
+    LaunchedEffect(productId) {
+        productId?.toIntOrNull()?.let { viewModel.loadProductById(it) }
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        IconButton(onClick = { navController.popBackStack() }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Retour"
+            )
+        }
+
+        if (product != null) {
             AsyncImage(
-                model = product.image,
-                contentDescription = product.title,
-                modifier = Modifier.fillMaxWidth().height(250.dp)
+                model = product!!.image,
+                contentDescription = product!!.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(product.title, style = MaterialTheme.typography.titleLarge)
+            Text(product!!.title, style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Prix : $${product.price}", style = MaterialTheme.typography.bodyLarge)
+            Text("Prix : $${product!!.price}", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(product.description ?: "Pas de description", style = MaterialTheme.typography.bodyMedium)
+            Text(product!!.description, style = MaterialTheme.typography.bodyMedium)
+        } else {
+            Text("Produit introuvable", modifier = Modifier.padding(16.dp))
         }
-    } else {
-        Text("Produit introuvable", modifier = Modifier.padding(16.dp))
     }
 }
