@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +37,8 @@ fun ProductDetailScreen(
     navController: NavController,
     viewModel: ProductViewModel = viewModel(),
     onBack: () -> Unit,
-    onGoToCart: () -> Unit
+    onGoToCart: () -> Unit,
+    onCartClick: () -> Unit
 ) {
     val product by viewModel.product.collectAsState()
 
@@ -48,19 +50,17 @@ fun ProductDetailScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Détail produit") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
-                    }
-                },
                 actions = {
-                    IconButton(onClick = onGoToCart) {
+                    IconButton(onClick = { navController.navigate("products") }) {
+                        Icon(Icons.Default.Home, contentDescription = "Accueil")
+                    }
+                    IconButton(onClick = onCartClick) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Panier")
                     }
                 }
             )
         }
-    ) { padding ->
+    )  { padding ->
         if (product != null) {
             Column(
                 modifier = Modifier

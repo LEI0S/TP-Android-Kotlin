@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -50,6 +51,9 @@ fun ProductScreen(navController: NavController,
             TopAppBar(
                 title = { Text("Produits") },
                 actions = {
+                    IconButton(onClick = { navController.navigate("products") }) {
+                        Icon(Icons.Default.Home, contentDescription = "Accueil")
+                    }
                     IconButton(onClick = onCartClick) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Panier")
                     }
@@ -57,6 +61,7 @@ fun ProductScreen(navController: NavController,
             )
         }
     ) { padding ->
+
         Column(modifier = Modifier
             .padding(padding)
             .padding(16.dp)) {

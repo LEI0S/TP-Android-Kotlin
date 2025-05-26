@@ -4,12 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.projet_androidkotlin.viewmodel.ProductViewModel
 
@@ -33,11 +36,12 @@ import com.example.projet_androidkotlin.viewmodel.ProductViewModel
 @Composable
 fun CartScreen(
     onBack: () -> Unit,
+    navController: NavController,
     viewModel: ProductViewModel = viewModel(),
-    onProductClick: (String) -> Unit // 👈 Ajoute ce paramètre pour naviguer
+    onProductClick: (String) -> Unit
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
-
+    val totalPrice = cartItems.sumOf { it.product.price * it.quantity }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,6 +49,11 @@ fun CartScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate("products") }) {
+                        Icon(Icons.Default.Home, contentDescription = "Accueil")
                     }
                 }
             )
@@ -56,7 +65,6 @@ fun CartScreen(
             Column(modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)) {
-
                 cartItems.forEach { item ->
                     Row(modifier = Modifier.padding(vertical = 8.dp)) {
                         AsyncImage(
@@ -65,11 +73,11 @@ fun CartScreen(
                             modifier = Modifier.size(60.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-
                         Column {
                             Text(item.product.title, style = MaterialTheme.typography.titleSmall)
-                            Text("Prix : $${item.product.price}", style = MaterialTheme.typography.bodyMedium)
-                            Text("Quantité : ${item.quantity}", style = MaterialTheme.typography.bodySmall)
+                            Text("Prix unitaire : $${item.product.price}")
+                            Text("Quantité : ${item.quantity}")
+                            Text("Total : $${"%.2f".format(item.product.price * item.quantity)}")
 
                             Row {
                                 Button(onClick = { viewModel.increaseQuantity(item.product) }) {
@@ -86,9 +94,16 @@ fun CartScreen(
                             }
                         }
                     }
-
                     HorizontalDivider()
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Total du panier : $${"%.2f".format(totalPrice)}",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
     }

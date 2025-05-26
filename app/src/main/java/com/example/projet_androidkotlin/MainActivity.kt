@@ -41,7 +41,9 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             viewModel = viewModel,
                             onBack = { navController.popBackStack() },
-                            onGoToCart = { navController.navigate("cart") }
+                            onGoToCart = { navController.navigate("cart") },
+                            onCartClick = { navController.navigate("cart") }
+
                         )
                     }
 
@@ -51,7 +53,8 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel,
                             onProductClick = { productId ->
                                 navController.navigate("productDetail/$productId")
-                            }
+                            },
+                            navController = navController
                         )
                     }
 
