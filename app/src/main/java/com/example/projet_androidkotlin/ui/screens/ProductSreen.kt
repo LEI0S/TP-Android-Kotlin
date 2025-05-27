@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -115,39 +116,42 @@ fun ProductScreen(navController: NavController,
 
 @Composable
 fun ProductItem(product: Product, onClick: () -> Unit) {
-    val qrContent = "productDetail/${product.id}"
-
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        AsyncImage(
-            model = product.image,
-            contentDescription = product.title,
-            modifier = Modifier.size(80.dp)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(product.title, style = MaterialTheme.typography.titleMedium)
-            Text("$${product.price}", style = MaterialTheme.typography.bodyMedium)
-        }
+        Row(modifier = Modifier.padding(16.dp)) {
+            AsyncImage(
+                model = product.image,
+                contentDescription = product.title,
+                modifier = Modifier.size(80.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
 
-        // 👉 Ajout du QR Code
-        val qrBitmap = remember(product.id) {
-            generateQRCode(qrContent)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(product.title, style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("$${product.price}", style = MaterialTheme.typography.bodyMedium)
+            }
+
+            // QR Code
+            val qrBitmap = remember(product.id) {
+                generateQRCode("productDetail/${product.id}")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Image(
+                bitmap = qrBitmap.asImageBitmap(),
+                contentDescription = "QR Code",
+                modifier = Modifier.size(60.dp)
+            )
         }
-        Spacer(modifier = Modifier.width(8.dp))
-        Image(
-            bitmap = qrBitmap.asImageBitmap(),
-            contentDescription = "QR Code",
-            modifier = Modifier
-                .size(64.dp)
-                .padding(end = 8.dp)
-        )
     }
 }
+
 
 
 

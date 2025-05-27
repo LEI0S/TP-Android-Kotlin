@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +14,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +46,7 @@ fun CartScreen(
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
     val totalPrice = cartItems.sumOf { it.product.price * it.quantity }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,52 +64,88 @@ fun CartScreen(
             )
         }
     ) { padding ->
-        if (cartItems.isEmpty()) {
-            Text("Votre panier est vide", modifier = Modifier.padding(16.dp))
-        } else {
-            Column(modifier = Modifier
+        Column(
+            modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)) {
+                .padding(16.dp)
+        ) {
+            if (cartItems.isEmpty()) {
+                Text(
+                    "Votre panier est vide",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            } else {
                 cartItems.forEach { item ->
-                    Row(modifier = Modifier.padding(vertical = 8.dp)) {
-                        AsyncImage(
-                            model = item.product.image,
-                            contentDescription = item.product.title,
-                            modifier = Modifier.size(60.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(item.product.title, style = MaterialTheme.typography.titleSmall)
-                            Text("Prix unitaire : $${item.product.price}")
-                            Text("Quantité : ${item.quantity}")
-                            Text("Total : $${"%.2f".format(item.product.price * item.quantity)}")
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(16.dp)) {
+                            AsyncImage(
+                                model = item.product.image,
+                                contentDescription = item.product.title,
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clickable {
+                                        onProductClick(item.product.id.toString())
+                                    }
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
 
-                            Row {
-                                Button(onClick = { viewModel.increaseQuantity(item.product) }) {
-                                    Text("+")
-                                }
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Button(onClick = { viewModel.removeFromCart(item.product) }) {
-                                    Text("-")
-                                }
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Button(onClick = { viewModel.removeProductCompletely(item.product) }) {
-                                    Text("Supprimer")
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.product.title, style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Prix : $${item.product.price}")
+                                Text("Quantité : ${item.quantity}")
+                                Text(
+                                    "Total : $${"%.2f".format(item.product.price * item.quantity)}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Row {
+                                    Button(
+                                        onClick = { viewModel.increaseQuantity(item.product) },
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text("+")
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Button(
+                                        onClick = { viewModel.removeFromCart(item.product) },
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text("-")
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Button(
+                                        onClick = { viewModel.removeProductCompletely(item.product) },
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text("Supprimer")
+                                    }
                                 }
                             }
                         }
                     }
-                    HorizontalDivider()
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(8.dp))
+                Divider()
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = "Total du panier : $${"%.2f".format(totalPrice)}",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         }
     }
 }
+
