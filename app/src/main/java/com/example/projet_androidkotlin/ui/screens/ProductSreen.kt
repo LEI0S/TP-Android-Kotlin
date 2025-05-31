@@ -1,5 +1,10 @@
 package com.example.projet_androidkotlin.ui.screens
 
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.SuperscriptSpan
+import android.widget.TextView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +17,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,10 +60,10 @@ fun ProductScreen(navController: NavController,
                 title = { Text("Produits") },
                 actions = {
                     IconButton(onClick = { navController.navigate("products") }) {
-                        Icon(Icons.Default.Home, contentDescription = "Accueil")
+                        Icon(Icons.Default.Home, contentDescription = "Accueil", tint = Color(0xFF850606))
                     }
                     IconButton(onClick = onCartClick) {
-                        Icon(Icons.Default.ShoppingCart, contentDescription = "Panier")
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Panier", tint=Color(0xFF850606))
                     }
                 }
             )
@@ -74,13 +80,21 @@ fun ProductScreen(navController: NavController,
                 label = { Text("Rechercher un produit") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF850606),
+                    unfocusedBorderColor = Color(0xFF850606),
+                    cursorColor = Color(0xFF850606))
             )
 
             var expanded by remember { mutableStateOf(false) }
             Box {
-                Button(onClick = { expanded = true }) {
-                    Text("Filtrer : $filterOption")
+                Button(onClick = { expanded = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF850606) // Rouge écarlate
+                    )
+                    ) {
+                    Text("Filtrer : $filterOption", color = Color.White)
                 }
                 DropdownMenu(
                     expanded = expanded,
@@ -112,7 +126,26 @@ fun ProductScreen(navController: NavController,
     }
 }
 
+@Composable
+fun setFormattedPrice(textView: TextView, price: Double) {
+    val dollars = price.toInt()
+    val cents = ((price - dollars) * 100).toInt()
 
+    val fullText = "$$dollars${String.format("%02d", cents)}"
+    val spannable = SpannableString(fullText)
+
+    // $ symbole plus petit
+    spannable.setSpan(RelativeSizeSpan(0.6f), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+    // Chiffre principal (ex: 2) taille normale
+    spannable.setSpan(RelativeSizeSpan(1.4f), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+    // Centimes plus petits et en exposant
+    spannable.setSpan(RelativeSizeSpan(0.7f), 2, fullText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    spannable.setSpan(SuperscriptSpan(), 2, fullText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+    textView.text = spannable
+}
 
 @Composable
 fun ProductItem(product: Product, onClick: () -> Unit) {
